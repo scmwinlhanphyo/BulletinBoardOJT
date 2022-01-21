@@ -1,0 +1,11 @@
+.operation-btn {
+  width: 121px;
+}
+
+.search-form {
+  display: flex;
+}
+
+.search-btn {
+  margin-right: 5px;
+}

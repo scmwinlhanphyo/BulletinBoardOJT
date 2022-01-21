@@ -1,0 +1,96 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+{% load static %}
+<link href="{% static 'css/user_list.css' %}?{% now 'U' %}" rel="stylesheet">
+<script src="{% static 'js/user_list.js' %}?{% now 'U' %}"></script>
+<div class="container">
+
+  <div class="main-center">
+    <form class="form-inline form" action="{% url 'user-list' %}" method="post">
+      {% csrf_token %}
+      <div class="form-group field">
+        {{form.name.label}}
+        {{form.name}}
+      </div>
+      <div class="form-group field">
+        {{form.email.label}}
+        {{form.email}}
+      </div>
+      <div class="form-group field">
+        {{form.from_date.label}}
+        {{form.from_date}}
+      </div>
+      <div class="form-group field">
+        {{form.to_date.label}}
+        {{form.to_date}}
+      </div>
+      <div class="form-group field">
+        <label for="byn"></label>
+        <button type="submit" class="btn btn-primary form-field">Search</button>
+      </div>
+    </form>
+
+    <table class="table table-bordered table-dark list-table">
+      <thead class="table-header">
+        <tr>
+          <th scope="col">ID</th>
+          <th scope="col">Name</th>
+          <th scope="col">Email</th>
+          <th scope="col">Create User</th>
+          <th scope="col">Type</th>
+          <th scope="col">Phone</th>
+          <th scope="col">Date of Birth</th>
+          <th scope="col">Address</th>
+          <th scope="col">Created Date</th>
+          <th scope="col">Updated Date</th>
+          <th scope="col">Operation</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for user in page_obj %}
+        <tr>
+          <td>{{ user.id }}</td>
+          <td>
+            <a href="#" data-toggle="modal" data-target="#detailModal" onclick="goToDetail('{{ user.id }}')">
+              {{ user.name }}
+            </a>
+          </td>
+          <td>{{ user.email }}</td>
+          <td>{{ user.created_user }}</td>
+          <td>{{ user.type }}</td>
+          <td>{{ user.phone }}</td>
+          <td>{{ user.dob }}</td>
+          <td>{{ user.address }}</td>
+          <td>{{ user.created_at }}</td>
+          <td>{{ user.updated_at }}</td>
+          <td><button class="btn btn-danger" data-toggle="modal" data-target="#deleteUserModal" onclick="showUserDeleteDialog('{{ user.id }}')">Delete</button></td>
+        </tr>
+        {% endfor %}
+        <div class="pagination">
+          <span class="step-links">
+            {% if page_obj.has_previous %}
+            <a href="?page=1">&laquo; first</a>
+            <a href="?page={{ page_obj.previous_page_number }}">previous</a>
+            {% endif %}
+
+            <span class="current">
+              Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
+            </span>
+
+            {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}">next</a>
+            <a href="?page={{ page_obj.paginator.num_pages }}">last &raquo;</a>
+            {% endif %}
+          </span>
+        </div>
+      </tbody>
+    </table>
+
+    {% block detail %}{% include 'posts/user_detail.html' %}{% endblock %}
+    {% block delete_dialog %}{% include 'posts/user_delete_dialog.html' %}{% endblock %}
+  </div>
+</div>
+</div>
+
+{% endblock %}

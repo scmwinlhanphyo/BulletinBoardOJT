@@ -1,0 +1,83 @@
+.content-nav-bar {
+  margin-top: 100px;
+}
+
+.navbar-color {
+  background-color: #337ab7;
+}
+
+.navbar-item {
+  color: white !important;
+}
+
+.navbar-default .navbar-nav > .open > a,
+.navbar-default .navbar-nav > .open > a:focus,
+.navbar-default .navbar-nav > .open > a:hover {
+  background-color: #337ab7;
+}
+
+.glyphicon {
+  margin-left: 3px;
+  padding-top: 1px;
+}
+
+.caret {
+  margin-bottom: 2px;
+  margin-left: 3px;
+}
+
+.container {
+  padding-left: 0;
+  width: 1100px;
+}
+
+.clearFix:after {
+  content: "";
+  display: block;
+  clear: both;
+  height: 0;
+  font-size: 0;
+  visibility: hidden;
+}
+.float-left {
+  float: left;
+}
+.float-right {
+  float: right;
+}
+.footer-link {
+  margin: 16px;
+}
+.list-header {
+  margin: 0 !important;
+  padding: 20px;
+  color: #ffffff;
+  background: #4cae4c;
+}
+.form {
+  margin: 0px 0 35px 0px;
+}
+.date-picker {
+  padding: 4px 1px;
+}
+.table-header {
+  background: #337ab7;
+  color: #ffffff;
+}
+.footer-nav {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  margin-bottom: 0;
+  height: 55px;
+}
+.description {
+  word-break: break-all;
+  width: 506px;
+}
+.list-table {
+  height: 400px;
+  overflow-y: scroll;
+  margin-bottom: 100px;
+  min-width: 1000px;
+}

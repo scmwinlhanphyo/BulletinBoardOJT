@@ -1,0 +1,52 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/user_profile.css' %}">
+
+<div class="row">
+  <div class="col-sm-5">
+    <img src="{{profile}}" class="profile-img" alt="user profile" height="150">
+  </div>
+  <div class="col-sm-7">
+    <div class="row">
+      <p class="col-sm-6">Name</p>
+      <p class="col-sm-6">{{name}}</p>
+    </div>
+    <div class="row">
+      <p class="col-sm-6">Type</p>
+      <p class="col-sm-6">
+        {% if type == '0' %}
+        Admin
+        {% else %}
+        User
+        {% endif %}
+      </p>
+    </div>
+    <div class="row">
+      <p class="col-sm-6">Email</p>
+      <p class="col-sm-6">{{email}}</p>
+    </div>
+    <div class="row">
+      <p class="col-sm-6">Phone</p>
+      <p class="col-sm-6">{{phone}}</p>
+    </div>
+    <div class="row">
+      <p class="col-sm-6">Date of Birth</p>
+      <p class="col-sm-6">{{dob}}</p>
+    </div>
+    <div class="row">
+      <p class="col-sm-6">Address</p>
+      <p class="col-sm-6">{{address}}</p>
+    </div>
+    <div class="row">
+      <div class="col-sm-6">
+        <a href="{% url 'user-update' id %}">
+          <button type="button" class="btn btn-primary form-field">Edit Profile</button>
+        </a>
+      </div>
+    </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

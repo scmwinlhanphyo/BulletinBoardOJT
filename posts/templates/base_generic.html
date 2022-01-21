@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  {% block title %}<title>Bulletin Board</title>{% endblock %}
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.10.0/css/all.css" integrity="sha384-AYmEC3Yw5cVb3ZcuHtOA93w35dYTsvhLPVnYs9eStHfGJvOvKxVfELGroGkvsg+p" crossorigin="anonymous"/>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+  <!-- Add additional CSS in static file -->
+  {% load static %}
+  <link href="{% static 'css/styles.css' %}?{% now 'U' %}" rel="stylesheet">
+</head>
+
+<body>
+
+  <nav class="navbar navbar-default navbar-color">
+    <div class="container-fluid">
+      <div class="navbar-header">
+        <a class="navbar-brand navbar-item" href="#">Bulletin_Board</a>
+      </div>
+      <ul class="nav navbar-nav">
+        <li><a class="navbar-item" href="{% url 'user-list' %}">Users</a></li>
+        <li><a class="navbar-item" href="{% url 'index' %}">Posts</a></li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li><a class="navbar-item" href="{% url 'user-create' %}">Create User</a></li>
+        <li class="dropdown">
+          <a class="navbar-item" class="dropdown-toggle " data-toggle="dropdown" href="#">
+            {{ request.session.login_username }}
+            <span class="glyphicon glyphicon-cog"></span><span class="caret"></span></a>
+          <ul class="dropdown-menu navbar-color">
+            <li><a class="navbar-item" href="{% url 'user-profile' %}">Profile</a></li>
+            <li><a class="navbar-item" href="{% url 'logout'%}?next={{request.path}}">Logout</a></li>
+          </ul>
+        </li>
+      </ul>
+    </div>
+  </nav>
+
+  <div class="container content-nav-bar">
+    <nav class="navbar navbar-primary bg-primary">
+      <div class="container-fluid">
+        <div class="navbar-header">
+          <h4>{{ title }}</h4>
+        </div>
+      </div>
+    </nav>
+    {% block content %}{% endblock %}
+  </div>
+
+  <div class="navbar navbar-default footer-nav navbar-color">
+    <div class="clearFix">
+      <p class="float-left footer-link">
+        <a class=".text-success navbar-item" href="http://seattleconsultingmyanmar.com/" target="blank">Seattle Consulting
+          Myanmar</a>
+      </p>
+      <p class=".text-success navbar-item float-right footer-link">Copyright © Seattle Consulting
+        Myanmar Co., Ltd. All rights reserved.</p>
+    </div>
+</body>
+
+</html>

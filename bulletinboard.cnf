@@ -1,0 +1,8 @@
+# bulletinboard.cnf
+[client]
+database = bulletinboard
+user = root
+password = root
+host = localhost
+port = 3306
+default-character-set = utf8

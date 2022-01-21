@@ -1,0 +1,13 @@
+#post-delete-id,
+#post-delete-title,
+#post-delete-description,
+#post-delete-status,
+#user-delete-id,
+#user-delete-name,
+#user-delete-type,
+#user-delete-email,
+#user-delete-phone,
+#user-delete-dob,
+#user-delete-address {
+  word-break: break-all;
+}
