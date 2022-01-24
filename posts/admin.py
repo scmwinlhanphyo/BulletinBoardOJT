@@ -1,24 +1,36 @@
 from django.contrib import admin
-from .models import Posts, Password_Resets, Users
+from .models import Post, Password_Reset, User
 
 
-# Register your models here.
-# Define the admin class
-class UsersAdmin(admin.ModelAdmin):
-    list_display = ('name', 'email', 'password', 'profile', 'type', 'phone', 'address', 'dob', 'created_user_id', 'updated_user_id', 'deleted_user_id', 'created_at', 'updated_at', 'deleted_at')
+# Define User admin class.
+class UserAdmin(admin.ModelAdmin):
+    """
+    define user admin.
+    Request admin model.
+    """
+    list_display = ("name", "email", "password", "profile", "type", "phone", "address", "dob", "created_user_id", "updated_user_id", "deleted_user_id", "created_at", "updated_at", "deleted_at")
 
-    fields = ['name', 'email', 'password', 'profile', 'type', 'phone', 'address', 'dob', 'profile']
+    fields = ["name", "email", "password", "profile", "type", "phone", "address", "dob", "profile"]
 
-class PostsAdmin(admin.ModelAdmin):
-    list_display = ('title', 'description', 'status', 'created_user_id', 'updated_user_id', 'deleted_user_id', 'created_at', 'updated_at', 'deleted_at')
+class PostAdmin(admin.ModelAdmin):
+    """
+    define post admin.
+    Request admin model.
+    """
+    list_display = ("title", "description", "status", "created_user_id", "updated_user_id", "deleted_user_id", "created_at", "updated_at", "deleted_at")
 
-    fields = ['title', 'description', 'status']
+    fields = ["title", "description", "status"]
 
-class Password_ResetsAdmin(admin.ModelAdmin):
-    list_display = ('email', 'token', 'created_at')
+class Password_ResetAdmin(admin.ModelAdmin):
+    """
+    define password rest admin.
+    Request admin model.
+    """
+    list_display = ("email", "token", "created_at")
 
-    fields = ['email', 'token']
+    fields = ["email", "token"]
 
-admin.site.register(Posts)
-admin.site.register(Password_Resets)
-admin.site.register(Users)
+# Register the models.
+admin.site.register(Post)
+admin.site.register(Password_Reset)
+admin.site.register(User)

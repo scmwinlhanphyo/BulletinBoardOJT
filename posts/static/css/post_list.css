@@ -9,3 +9,8 @@
 .post-search-form-group {
   width: 341px;
 }
+
+.post-row {
+  display: flex;
+  justify-content: flex-end;
+}

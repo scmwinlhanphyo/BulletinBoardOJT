@@ -8,8 +8,8 @@
 
   <div class="main-center">
     <div class="form-inline pull-right">
-      <div class="row">
-        <div class="col-sm-7">
+      <div class="post-row">
+        <div>
           <form method="post" action="{% url 'index' %}">
             {% csrf_token %}
             <div class="form-group post-search-form-group">
@@ -20,7 +20,7 @@
           </form>
         </div>
 
-        <div class="col-sm-5">
+        <div>
             <button class="btn btn-primary" onclick="location.href='{% url "post-create" %}'">Create</button>
             <button class="btn btn-primary" onclick="location.href='{% url "csv-import" %}'">Upload</button>
             <button class="btn btn-primary" onclick="downloadCSV()">Download</button>
