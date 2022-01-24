@@ -6,6 +6,6 @@
   display: flex;
 }
 
-.search-btn {
-  margin-right: 5px;
+.post-search-form-group {
+  width: 341px;
 }

@@ -132,7 +132,7 @@
     </div>
 
     <div class="form-group">
-      <div class="col-sm-offset-2 col-sm-10">
+      <div class="col-sm-offset-4 col-sm-8">
         <button type="submit" name="_save" class="btn btn-primary">
           {% if request.session.create_update_confirm_page_flag == True %}
           Confirm
@@ -152,6 +152,6 @@
 
   </div>
 
-  <a href={% url 'password-reset' %}>Change Password</a>
+  <a href="{% url 'password_reset' %}">Change Password</a>
 </form>
 {% endblock %}
