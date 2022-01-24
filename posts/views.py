@@ -384,7 +384,7 @@ def user_update(request, pk):
     Return user update view.
     """
     req_user = get_object_or_404(User, pk=pk)
-    profile = req_user.profile if req_user.profile.url and hasattr(
+    profile = req_user.profile if req_user.profile and hasattr(
         req_user.profile, "url") else ""
     check_route("user", request.META.get("HTTP_REFERER"), request)
     formData = {
