@@ -57,13 +57,13 @@ function showUserDeleteDialog(user) {
   })
 }
 
-function postDelete() {
+function userDelete() {
   const id = $("#user-delete-id").html();
   $.ajax({
     type: 'GET',
     url: "/user/delete",
     data: {
-      'post_id': id
+      'user_id': id
     },
     success: function () {
       $("#deleteUserModal").modal('hide');

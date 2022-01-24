@@ -57,6 +57,7 @@ def index(request):
     }
     return render(request, "posts/post_list.html", context)
 
+
 @login_required
 def userList(request):
     """
@@ -138,6 +139,18 @@ def user_login(request):
             messages.info(request, f"Email does not exist or deleted")
     return render(request, "registration/login.html", {"form": form, "title": "Login", "login_username": login_username})
 
+
+def validate_post_form(request, form):
+    if not request.POST["title"]:
+        form.add_error("title", "Title can't be blank")
+    if not request.POST["description"]:
+        form.add_error("description", "Description can't be blank")
+    if not request.POST["description"]:
+        des = request.POST["description"]
+        if len(des) > 255:
+            form.add_error("description", "255 characters is maximum allowed.")
+
+
 @login_required
 def post_create(request):
     """
@@ -154,6 +167,8 @@ def post_create(request):
     if request.method == "POST":
         if "_save" in request.POST:
             form = PostForm(request.POST)
+            validate_post_form(request, form)
+
             if form.is_valid():
                 if request.session["create_update_confirm_page_flag"] == True:
                     print("form.cleaned_data.get('title')")
@@ -191,6 +206,7 @@ def post_create(request):
     }
     return render(request, "posts/posts_form.html", context)
 
+
 @login_required
 def post_update(request, pk):
     """
@@ -211,6 +227,7 @@ def post_update(request, pk):
     if request.method == "POST":
         if "_save" in request.POST:
             form = PostForm(request.POST)
+            validate_post_form(request, form)
             if form.is_valid():
                 request.session["is_edit"] = True
                 if request.session["create_update_confirm_page_flag"] == True:
@@ -252,6 +269,7 @@ def post_update(request, pk):
     }
     return render(request, "posts/posts_form.html", context)
 
+
 @login_required
 def post_detail(request):
     """
@@ -269,6 +287,7 @@ def post_detail(request):
     struct[0]["updated_user_name"] = updated_user.name
     data = json.dumps(struct[0])
     return HttpResponse(data)
+
 
 @login_required
 def user_detail(request):
@@ -296,6 +315,21 @@ def user_detail(request):
     data = json.dumps(struct[0])
     return HttpResponse(data)
 
+
+def validate_user_form(request, form, createForm=False):
+    """check user form validation."""
+    if not request.POST["name"]:
+        form.add_error("name", "Name can't be blank")
+    if not request.POST["email"]:
+        form.add_error("email", "Email can't be blank")
+    if not request.POST.get("type"):
+        form.add_error("type", "Type can't be blank")
+    if not request.POST.get("address"):
+        form.add_error("address", "Address can't be blank")
+    if "profile" not in request.FILES and createForm == True:
+        form.add_error("profile", "Profile can't be blank")
+
+
 @login_required
 def user_create(request):
     """
@@ -314,6 +348,7 @@ def user_create(request):
         if request.method == "POST":
             if "_save" in request.POST:
                 form = UserForm(request.POST, request.FILES)
+                validate_user_form(request, form, True)
                 if form.is_valid():
                     if request.session["create_update_confirm_page_flag"] == True:
                         handle_uploaded_file(request.session.get("profile"))
@@ -376,6 +411,7 @@ def user_create(request):
     }
     return render(request, "posts/users_form.html", context)
 
+
 @login_required
 def user_update(request, pk):
     """
@@ -402,6 +438,7 @@ def user_update(request, pk):
     if request.method == "POST":
         if "_save" in request.POST:
             form = UserEditForm(request.POST, request.FILES)
+            validate_user_form(request, form)
             if form.is_valid():
                 if request.session.get("create_update_confirm_page_flag") == True:
                     try:
@@ -429,6 +466,7 @@ def user_update(request, pk):
                         request.session["create_update_confirm_page_flag"] = False
                         form.add_error(None, str(error))
                 else:
+                    validate_user_form(request, form)
                     if "profile" in request.FILES:
                         profile = save_temp(request.FILES["profile"])
                         request.session["profile"] = "/media/temp/" + profile
@@ -464,6 +502,7 @@ def user_update(request, pk):
     }
     return render(request, "posts/user_update.html", context)
 
+
 @login_required
 def user_profile(request):
     """
@@ -487,6 +526,7 @@ def user_profile(request):
     }
     return render(request, "posts/user_profile.html", context=context)
 
+
 @login_required
 def download_post_list_csv(request):
     """
@@ -508,6 +548,7 @@ def download_post_list_csv(request):
                         post.updated_user_id, post.deleted_user_id, post.deleted_at, post.created_at, post.updated_at])
     return response
 
+
 def check_csv_row(data):
     """
     check csv rows and add data to csv arrays.
@@ -521,6 +562,12 @@ def check_csv_row(data):
         arr_csv.append(row)
     return arr_csv
 
+
+def validate_csv_form(request, form):
+    if "csv_file" not in request.POST:
+        form.add_error("csv_file", "CSV File can't be blank")
+
+
 @login_required
 def csv_import(request):
     """
@@ -532,14 +579,11 @@ def csv_import(request):
     message = ""
     if request.method == "POST":
         form = CSVForm(request.POST, request.FILES)
+        validate_csv_form(request, form)
         if "csv_file" in request.FILES:
             user = get_object_or_404(User, pk=request.user.id)
-            upload = request.FILES["csv_file"]
-            fss = FileSystemStorage()
-            file = fss.save(upload.name, upload)
-            file_url = fss.url(file)
-            file_name = file_url.split("/")
-            with open("media/" + file_name[-1]) as csv_file:
+            file_name = save_temp(request.FILES["csv_file"])
+            with open("media/temp/" + file_name) as csv_file:
                 csv_reader = csv.reader(csv_file, delimiter=",")
                 valid_csv = check_csv_row(csv_reader)
                 if valid_csv:
@@ -556,6 +600,8 @@ def csv_import(request):
                                 updated_at=timezone.now()
                             )
                             csv_post.save()
+                    print('remove temp')
+                    remove_temp(file_name)
                     return HttpResponseRedirect(reverse("index"))
                 else:
                     message = "Post upload csv must have 3 columns"
@@ -568,6 +614,23 @@ def csv_import(request):
     }
     return render(request, "posts/csv-import.html", context=context)
 
+
+def validate_sign_form(request, form):
+    """signup form validation."""
+    if not request.POST["name"]:
+        form.add_error("name", "Name can't be blank")
+    if not request.POST["email"]:
+        form.add_error("email", "Email can't be blank")
+    if not request.POST["password"]:
+        form.add_error("password", "Password can't be blank")
+    if not request.POST["password_confirmation"]:
+        form.add_error("password_confirmation",
+                       "Password Confirmation can't be blank")
+    if request.POST["password"] and request.POST["password_confirmation"]:
+        if request.POST["password"] != request.POST["password_confirmation"]:
+            form.add_error(None, "Password Confirmation must be match.")
+
+
 def signup(request):
     """
     View signup page.
@@ -578,6 +641,7 @@ def signup(request):
 
     if request.method == "POST":
         form = SignUpForm(request.POST)
+        validate_sign_form(request, form)
         if form.is_valid():
             new_user = User(
                 name=form.cleaned_data.get("name"),
@@ -634,8 +698,23 @@ def user_delete(request):
     return HttpResponseRedirect(reverse("user-list"))
 
 
+def validate_password_change_form(request, form):
+    """password reset form validataion"""
+    if not request.POST["password"]:
+        form.add_error("name", "Password can't be blank")
+    if not request.POST["new_password"]:
+        form.add_error("password", "New password can't be blank")
+    if not request.POST["new_password_confirm"]:
+        form.add_error("new_password_confirm",
+                       "New confirm password can't be blank")
+    if request.POST["password"] and request.POST["password_confirmation"]:
+        if request.POST["password"] != request.POST["password_confirmation"]:
+            form.add_error(
+                None, "News password and new password confirmation is not match.")
+
+
 @login_required
-def user_password_reset(request):
+def password_change(request):
     """
     View user password reset page.
     Param password reset form data.
@@ -644,6 +723,7 @@ def user_password_reset(request):
     reset_form = PasswordResetForm()
     if request.method == "POST":
         reset_form = PasswordResetForm(request.POST)
+        validate_password_change_form(request, form)
         if reset_form.is_valid():
             password = reset_form.cleaned_data.get("password")
             new_password = reset_form.cleaned_data.get("new_password")
@@ -651,7 +731,8 @@ def user_password_reset(request):
             if (check_password(password, user.password)):
                 user.password = make_password(new_password)
                 user.save()
+                messages.info(request, f"Password is successfully updated.")
                 return HttpResponseRedirect(reverse("user-list"))
             else:
                 reset_form.add_error("password", "Current password is wrong!")
-    return render(request, "registration/password_reset.html", {"form": reset_form, "title": "Change Password"})
+    return render(request, "registration/password_change.html", {"form": reset_form, "title": "Change Password"})

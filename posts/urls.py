@@ -16,5 +16,6 @@ urlpatterns = [
     path("post/list/download/", views.download_post_list_csv, name="post-list-download"),
     path("csv/import/", views.csv_import, name="csv-import"),
     re_path(r"^accounts/login/$", views.user_login, name="user_login"),
-    re_path(r"^accounts/register/$", views.signup, name="create_account")
+    re_path(r"^accounts/register/$", views.signup, name="create_account"),
+    re_path(r"^accounts/password_change/$", views.password_change, name="password_change")
 ]

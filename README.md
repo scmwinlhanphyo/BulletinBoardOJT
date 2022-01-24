@@ -53,3 +53,6 @@ password = root
 
 ## Run Django Test Code
 python manage.py test posts.tests
+
+coverage report show_missing=true
+coverage run --source='.' manage.py test posts; 
