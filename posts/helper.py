@@ -1,6 +1,5 @@
 from django.conf import settings
 import os
-import csv
 
 def check_route(current_route, previousRoute, request):
     """
@@ -47,5 +46,4 @@ def remove_temp(f):
     f filename, root_dir Project Root Directory.
     """
     if (f):
-        print('-------remove temp------')
         os.unlink(str(settings.BASE_DIR)+"\\media\\temp\\" + f)

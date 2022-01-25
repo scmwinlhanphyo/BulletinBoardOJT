@@ -11,7 +11,6 @@ from django.utils import timezone
 from django.core.paginator import Paginator
 from django.core import serializers
 from django.utils.translation import gettext_lazy as _
-from django.core.files.storage import FileSystemStorage
 from django.db.models import Q
 from datetime import datetime
 from posts.forms import PostForm, SearchUserForm, UserForm, UserEditForm, SignUpForm, CSVForm, PasswordResetForm, SeachPostForm
@@ -142,17 +141,6 @@ def user_login(request):
     return render(request, "registration/login.html", {"form": form, "title": "Login", "login_username": login_username})
 
 
-def validate_post_form(request, form):
-    if not request.POST["title"]:
-        form.add_error("title", "Title can't be blank")
-    if not request.POST["description"]:
-        form.add_error("description", "Description can't be blank")
-    if not request.POST["description"]:
-        des = request.POST["description"]
-        if len(des) > 255:
-            form.add_error("description", "255 characters is maximum allowed.")
-
-
 @login_required
 def post_create(request):
     """
@@ -162,19 +150,15 @@ def post_create(request):
     """
     user = get_object_or_404(User, pk=request.user.id)
     formData = None
-    form = PostForm(request.POST)
+    form = PostForm()
     check_route("post", request.META.get("HTTP_REFERER"), request)
     if request.session.get("create_update_confirm_page_flag") is None:
         request.session["create_update_confirm_page_flag"] = False
     if request.method == "POST":
         if "_save" in request.POST:
             form = PostForm(request.POST)
-            validate_post_form(request, form)
-
             if form.is_valid():
                 if request.session["create_update_confirm_page_flag"] == True:
-                    print("form.cleaned_data.get('title')")
-                    print(form.cleaned_data.get("title"))
                     new_post = Post(
                         title=form.cleaned_data.get("title"),
                         description=form.cleaned_data.get("description"),
@@ -229,7 +213,6 @@ def post_update(request, pk):
     if request.method == "POST":
         if "_save" in request.POST:
             form = PostForm(request.POST)
-            validate_post_form(request, form)
             if form.is_valid():
                 request.session["is_edit"] = True
                 if request.session["create_update_confirm_page_flag"] == True:
@@ -303,6 +286,7 @@ def user_detail(request):
     profile_url = ""
     if obj.profile and hasattr(obj.profile, "url"):
         profile_url = obj.profile.url
+        profile_url = "media/" + profile_url.split("/")[-1]
     else:
         profile_url = "media/user-default.png"
     created_user = User.objects.get(
@@ -318,20 +302,6 @@ def user_detail(request):
     return HttpResponse(data)
 
 
-def validate_user_form(request, form, createForm=False):
-    """check user form validation."""
-    if not request.POST["name"]:
-        form.add_error("name", "Name can't be blank")
-    if not request.POST["email"]:
-        form.add_error("email", "Email can't be blank")
-    if not request.POST.get("type"):
-        form.add_error("type", "Type can't be blank")
-    if not request.POST.get("address"):
-        form.add_error("address", "Address can't be blank")
-    if "profile" not in request.FILES and createForm == True:
-        form.add_error("profile", "Profile can't be blank")
-
-
 @login_required
 def user_create(request):
     """
@@ -339,7 +309,7 @@ def user_create(request):
     Param request user post form and file data.
     Return user create view.
     """
-    form = UserForm(request.POST)
+    form = UserForm()
     try:
         user = get_object_or_404(User, pk=request.user.id)
         formData = None
@@ -350,7 +320,6 @@ def user_create(request):
         if request.method == "POST":
             if "_save" in request.POST:
                 form = UserForm(request.POST, request.FILES)
-                validate_user_form(request, form, True)
                 if form.is_valid():
                     if request.session["create_update_confirm_page_flag"] == True:
                         handle_uploaded_file(request.session.get("profile"))
@@ -372,34 +341,35 @@ def user_create(request):
                         new_user.save()
                         request.session["create_update_confirm_page_flag"] = False
                         remove_temp(request.session.get("profile"))
-                        print('-------------redirect---------user-list')
                         return HttpResponseRedirect(reverse("user-list"))
                     else:
                         if "profile" in request.FILES:
                             profile = save_temp(request.FILES["profile"])
                             request.session["profile"] = profile
-
-                        formData = {
-                            "name": form.cleaned_data.get("name"),
-                            "email": form.cleaned_data.get("email"),
-                            "password": form.cleaned_data.get("password"),
-                            "password_confirmation": form.cleaned_data.get("password_confirmation"),
-                            "type": form.cleaned_data.get("type"),
-                            "phone": form.cleaned_data.get("phone"),
-                            "address": form.cleaned_data.get("address"),
-                            "dob": form.cleaned_data.get("dob"),
-                        }
-                        form = UserForm(initial=formData)
-                        request.session["create_update_confirm_page_flag"] = True
-                        form.fields["name"].widget.attrs["readonly"] = True
-                        form.fields["email"].widget.attrs["readonly"] = True
-                        form.fields["password"].widget.attrs["readonly"] = True
-                        form.fields["password_confirmation"].widget.attrs["readonly"] = True
-                        form.fields["type"].widget.attrs["readonly"] = True
-                        form.fields["phone"].widget.attrs["readonly"] = True
-                        form.fields["address"].widget.attrs["readonly"] = True
-                        form.fields["dob"].widget.attrs["readonly"] = True
-                        form.fields["profile"].widget.attrs["readonly"] = True
+                            formData = {
+                                "name": form.cleaned_data.get("name"),
+                                "email": form.cleaned_data.get("email"),
+                                "password": form.cleaned_data.get("password"),
+                                "password_confirmation": form.cleaned_data.get("password_confirmation"),
+                                "type": form.cleaned_data.get("type"),
+                                "phone": form.cleaned_data.get("phone"),
+                                "address": form.cleaned_data.get("address"),
+                                "dob": form.cleaned_data.get("dob")
+                            }
+                            form = UserForm(initial=formData)
+                            request.session["create_update_confirm_page_flag"] = True
+                            form.fields["name"].widget.attrs["readonly"] = True
+                            form.fields["email"].widget.attrs["readonly"] = True
+                            form.fields["password"].widget.attrs["readonly"] = True
+                            form.fields["password_confirmation"].widget.attrs["readonly"] = True
+                            form.fields["type"].widget.attrs["readonly"] = True
+                            form.fields["phone"].widget.attrs["readonly"] = True
+                            form.fields["address"].widget.attrs["readonly"] = True
+                            form.fields["dob"].widget.attrs["readonly"] = True
+                            form.fields["profile"].widget.attrs["disabled"] = True
+                        else:
+                            request.session["save_confirm_page"] = False
+                            form.add_error("profile", "profile can't be blank")
             else:
                 request.session["create_update_confirm_page_flag"] = False
                 return HttpResponseRedirect(reverse("user-create"))
@@ -423,8 +393,13 @@ def user_update(request, pk):
     Return user update view.
     """
     req_user = get_object_or_404(User, pk=pk)
-    profile = req_user.profile if req_user.profile and hasattr(
-        req_user.profile, "url") else ""
+    profile = ""
+
+    if req_user.profile and hasattr(req_user.profile, "url"):
+        profile = req_user.profile.url
+        profile = "/media/" + profile.split("/")[-1]
+    else:
+        profile = "/media/user-default.png"
     check_route("user", request.META.get("HTTP_REFERER"), request)
     formData = {
         "name": req_user.name,
@@ -441,11 +416,10 @@ def user_update(request, pk):
     if request.method == "POST":
         if "_save" in request.POST:
             form = UserEditForm(request.POST, request.FILES)
-            validate_user_form(request, form)
             if form.is_valid():
                 if request.session.get("create_update_confirm_page_flag") == True:
                     try:
-                        oldFileDir = "/media/" + str(profile)
+                        oldFileDir = str(profile)
                         if oldFileDir != request.session.get("profile"):
                             file_dir = request.session.get("profile")
                             file_name = file_dir.split("/")[-1]
@@ -469,12 +443,11 @@ def user_update(request, pk):
                         request.session["create_update_confirm_page_flag"] = False
                         form.add_error(None, str(error))
                 else:
-                    validate_user_form(request, form)
                     if "profile" in request.FILES:
                         profile = save_temp(request.FILES["profile"])
                         request.session["profile"] = "/media/temp/" + profile
                     else:
-                        request.session["profile"] = "/media/" + str(profile)
+                        request.session["profile"] = str(profile)
                     formData = {
                         "name": form.cleaned_data.get("name"),
                         "email": form.cleaned_data.get("email"),
@@ -514,8 +487,12 @@ def user_profile(request):
     Return user profile view.
     """
     current_user = get_object_or_404(User, pk=request.user.id)
-    current_user.profile = current_user.profile.url if current_user.profile and hasattr(
-        current_user.profile, "url") else "/media/user-default.png"
+    profile_url = ""
+    if current_user.profile and hasattr(current_user.profile, "url"):
+        profile_url = current_user.profile.url
+        profile_url = "/media/" + profile_url.split("/")[-1]
+    else:
+        profile_url = "/media/user-default.png"
     context = {
         "id": current_user.id,
         "name": current_user.name,
@@ -524,7 +501,7 @@ def user_profile(request):
         "phone": current_user.phone,
         "dob": current_user.dob,
         "address": current_user.address,
-        "profile": current_user.profile,
+        "profile": profile_url,
         "title": "Post List"
     }
     return render(request, "posts/user_profile.html", context=context)
@@ -566,11 +543,6 @@ def check_csv_row(data):
     return arr_csv
 
 
-def validate_csv_form(request, form):
-    if "csv_file" not in request.POST:
-        form.add_error("csv_file", "CSV File can't be blank")
-
-
 @login_required
 def csv_import(request):
     """
@@ -581,36 +553,38 @@ def csv_import(request):
     form = CSVForm()
     message = ""
     if request.method == "POST":
-        form = CSVForm(request.POST, request.FILES)
-        validate_csv_form(request, form)
-        if "csv_file" in request.FILES:
-            user = get_object_or_404(User, pk=request.user.id)
-            req_file = request.FILES["csv_file"]
-            csv_path = save_temp(req_file)
-            with open("media/temp/{}".format(csv_path)) as csv_file:
-                csv_reader = csv.reader(csv_file, delimiter=",")
-                valid_csv = check_csv_row(csv_reader)
-                if valid_csv:
-                    for i, row in enumerate(valid_csv):
-                        if i != 0:
-                            csv_post = Post(
-                                title=row[0],
-                                description=row[1],
-                                status=row[2],
-                                user=user,
-                                created_user_id=user.id,
-                                updated_user_id=user.id,
-                                created_at=timezone.now(),
-                                updated_at=timezone.now()
-                            )
-                            csv_post.save()
-                    csv_file.close()
-                    remove_temp(csv_path)
-                    return HttpResponseRedirect(reverse("index"))
-                else:
-                    message = "Post upload csv must have 3 columns"
-        else:
-            message = "Please choose a file"
+        try:
+            form = CSVForm(request.POST, request.FILES)
+            if "csv_file" in request.FILES:
+                user = get_object_or_404(User, pk=request.user.id)
+                req_file = request.FILES["csv_file"]
+                csv_path = save_temp(req_file)
+                with open("media/temp/{}".format(csv_path)) as csv_file:
+                    csv_reader = csv.reader(csv_file, delimiter=",")
+                    valid_csv = check_csv_row(csv_reader)
+                    if valid_csv:
+                        for i, row in enumerate(valid_csv):
+                            if i != 0:
+                                csv_post = Post(
+                                    title=row[0],
+                                    description=row[1],
+                                    status=row[2],
+                                    user=user,
+                                    created_user_id=user.id,
+                                    updated_user_id=user.id,
+                                    created_at=timezone.now(),
+                                    updated_at=timezone.now()
+                                )
+                                csv_post.save()
+                        csv_file.close()
+                        remove_temp(csv_path)
+                        return HttpResponseRedirect(reverse("index"))
+                    else:
+                        message = "Post upload csv must have 3 columns"
+            else:
+                message = "Please choose a file"
+        except Exception as e:
+            message = str(e)
     context = {
         "title": "Upload CSV File",
         "form": form,
@@ -619,33 +593,16 @@ def csv_import(request):
     return render(request, "posts/csv-import.html", context=context)
 
 
-def validate_sign_form(request, form):
-    """signup form validation."""
-    if not request.POST["name"]:
-        form.add_error("name", "Name can't be blank")
-    if not request.POST["email"]:
-        form.add_error("email", "Email can't be blank")
-    if not request.POST["password"]:
-        form.add_error("password", "Password can't be blank")
-    if not request.POST["password_confirmation"]:
-        form.add_error("password_confirmation",
-                       "Password Confirmation can't be blank")
-    if request.POST["password"] and request.POST["password_confirmation"]:
-        if request.POST["password"] != request.POST["password_confirmation"]:
-            form.add_error(None, "Password Confirmation must be match.")
-
-
 def signup(request):
     """
     View signup page.
     Param django request view.
     Return signup page view.
     """
-    form = SignUpForm(request.POST)
+    form = SignUpForm()
 
     if request.method == "POST":
         form = SignUpForm(request.POST)
-        validate_sign_form(request, form)
         if form.is_valid():
             new_user = User(
                 name=form.cleaned_data.get("name"),
@@ -657,8 +614,6 @@ def signup(request):
             new_user.save()
             authUser = authenticate(request, username=form.cleaned_data.get(
                 "email"), password=form.cleaned_data.get("password"))
-            print("authUser")
-            print(authUser)
             if authUser:
                 login(request, authUser)
                 request.session["login_username"] = form.cleaned_data.get(
@@ -702,21 +657,6 @@ def user_delete(request):
     return HttpResponseRedirect(reverse("user-list"))
 
 
-def validate_password_change_form(request, form):
-    """password reset form validataion"""
-    if not request.POST["password"]:
-        form.add_error("name", "Password can't be blank")
-    if not request.POST["new_password"]:
-        form.add_error("password", "New password can't be blank")
-    if not request.POST["new_password_confirm"]:
-        form.add_error("new_password_confirm",
-                       "New confirm password can't be blank")
-    if request.POST["new_password"] and request.POST["new_password_confirm"]:
-        if request.POST["new_password"] != request.POST["new_password_confirm"]:
-            form.add_error(
-                None, "News password and new password confirmation is not match.")
-
-
 @login_required
 def password_change(request):
     """
@@ -727,7 +667,6 @@ def password_change(request):
     reset_form = PasswordResetForm()
     if request.method == "POST":
         reset_form = PasswordResetForm(request.POST)
-        validate_password_change_form(request, reset_form)
         if reset_form.is_valid():
             password = reset_form.cleaned_data.get("password")
             new_password = reset_form.cleaned_data.get("new_password")

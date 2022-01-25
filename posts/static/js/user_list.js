@@ -8,8 +8,7 @@ function goToDetail(user) {
     success: function (response) {
       const data = JSON.parse(response);
       const type = data?.fields?.type === 'a' ? 'Admin' : 'User';
-
-      console.log('user', data);
+      
       filename = ''
       if (data?.profile) {
         lastFileName = data.profile.split('/');
@@ -23,7 +22,7 @@ function goToDetail(user) {
       data?.fields?.email ? $("#user-detail-email").html(data.fields.email) : '';
       data?.fields?.phone ? $("#phone").html(data.fields.phone) : '';
       data?.fields?.created_at ? $("#created_date").html(data.fields.created_at) : '';
-      data?.fields?.created_user_name ? $("#created_user").html(data.created_user_name) : '';
+      data?.created_user_name ? $("#created_user").html(data.created_user_name) : '';
       data?.fields?.updated_at ? $("#updated_date").html(data.fields.updated_at) : '';
       data?.updated_user_name ? $("#updated_user").html(data.updated_user_name) : '';
     },
