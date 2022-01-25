@@ -1,3 +1,4 @@
+from email.policy import default
 from django.utils import timezone
 from django.db import models
 from django.urls import reverse
@@ -58,7 +59,7 @@ class User(AbstractBaseUser):
         unique=True
     )
     password = models.CharField(max_length=255)
-    profile = models.FileField(upload_to="", null=True, verbose_name="")
+    profile = models.FileField(upload_to="", null=True, verbose_name="", default='/user-default.png')
     USER_TYPE = (
         ("0", "Admin"),
         ("1", "User")
@@ -74,8 +75,8 @@ class User(AbstractBaseUser):
     phone = models.CharField(max_length=20, null=True, blank=True)
     address = models.CharField(max_length=255, null=True, blank=True)
     dob = models.DateField(null=True, blank=True)
-    created_user_id = models.IntegerField(null=True, blank=True)
-    updated_user_id = models.IntegerField(null=True, blank=True)
+    created_user_id = models.IntegerField(default=1)
+    updated_user_id = models.IntegerField(default=1)
     deleted_user_id = models.IntegerField(null=True, blank=True)
     created_at = models.DateField(default=timezone.now)
     updated_at = models.DateField(default=timezone.now)
@@ -103,13 +104,6 @@ class User(AbstractBaseUser):
         # Simplest possible answer: Yes, always
         return True
 
-    @property
-    def get_profile_url(self):
-        if self.profile and hasattr(self.profile, "url"):
-            return self.profile.url
-        else:
-            return "/media/user-default.png"
-
 class Post(models.Model):
     """Model representing Post."""
     title = models.CharField(max_length=255)
@@ -129,13 +123,3 @@ class Post(models.Model):
     """Returns the url to access post list page."""
     def get_absolute_url(self):
         return reverse("index")
-
-class Password_Reset(models.Model):
-    """Model representing Password_Reset."""
-    email = models.CharField(max_length=255)
-    token = models.CharField(max_length=255)
-    created_at = models.DateField(default=timezone.now)
-
-    """String for representing the Model object."""
-    def __str__(self):
-        return self.email

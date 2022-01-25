@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Post, Password_Reset, User
+from .models import Post, User
 
 
 # Define User admin class.
@@ -32,5 +32,4 @@ class Password_ResetAdmin(admin.ModelAdmin):
 
 # Register the models.
 admin.site.register(Post)
-admin.site.register(Password_Reset)
 admin.site.register(User)

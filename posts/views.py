@@ -19,7 +19,6 @@ from posts.models import Post, User
 from posts.helper import check_route, save_temp, handle_uploaded_file, remove_temp
 import csv
 import json
-import os
 
 
 @login_required
@@ -99,7 +98,7 @@ def userList(request):
     for user_data in user_list:
         user_data.type = "Admin" if user_data.type == "0" else "User"
         list_data = User.objects.filter(id=user_data.created_user_id)
-        user_data.created_user = list_data[0].name if len(
+        user_data.created_user = list_data[0].email if len(
             list_data) > 0 else ""
 
     paginator = Paginator(user_list, 5)
@@ -130,7 +129,10 @@ def user_login(request):
             if authUser:
                 login(request, authUser)
                 user = User.objects.get(email=email)
-                request.session["login_username"] = user.name
+                if user.name and hasattr(user, "name"):
+                    request.session["login_username"] = user.name
+                else:
+                    request.session["login_username"] = user.email
                 login_username = user.name
                 return redirect(request.POST.get("next", "/"))
             else:
@@ -279,7 +281,7 @@ def post_detail(request):
     """
     post_id = request.GET["post_id"]
     obj = Post.objects.get(pk=post_id)
-    created_user_name = obj.user.name
+    created_user_name = obj.user.email
     updated_user = User.objects.get(pk=obj.updated_user_id)
     data = serializers.serialize("json", [obj, ])
     struct = json.loads(data)
@@ -309,8 +311,8 @@ def user_detail(request):
         pk=obj.updated_user_id) if obj.updated_user_id != None else None
     data = serializers.serialize("json", [obj, ])
     struct = json.loads(data)
-    struct[0]["created_user_name"] = created_user.name
-    struct[0]["updated_user_name"] = updated_user.name
+    struct[0]["created_user_name"] = created_user.email
+    struct[0]["updated_user_name"] = updated_user.email
     struct[0]["profile"] = profile_url
     data = json.dumps(struct[0])
     return HttpResponse(data)
@@ -370,6 +372,7 @@ def user_create(request):
                         new_user.save()
                         request.session["create_update_confirm_page_flag"] = False
                         remove_temp(request.session.get("profile"))
+                        print('-------------redirect---------user-list')
                         return HttpResponseRedirect(reverse("user-list"))
                     else:
                         if "profile" in request.FILES:
@@ -582,8 +585,9 @@ def csv_import(request):
         validate_csv_form(request, form)
         if "csv_file" in request.FILES:
             user = get_object_or_404(User, pk=request.user.id)
-            file_name = save_temp(request.FILES["csv_file"])
-            with open("media/temp/" + file_name) as csv_file:
+            req_file = request.FILES["csv_file"]
+            csv_path = save_temp(req_file)
+            with open("media/temp/{}".format(csv_path)) as csv_file:
                 csv_reader = csv.reader(csv_file, delimiter=",")
                 valid_csv = check_csv_row(csv_reader)
                 if valid_csv:
@@ -600,8 +604,8 @@ def csv_import(request):
                                 updated_at=timezone.now()
                             )
                             csv_post.save()
-                    print('remove temp')
-                    remove_temp(file_name)
+                    csv_file.close()
+                    remove_temp(csv_path)
                     return HttpResponseRedirect(reverse("index"))
                 else:
                     message = "Post upload csv must have 3 columns"
@@ -707,8 +711,8 @@ def validate_password_change_form(request, form):
     if not request.POST["new_password_confirm"]:
         form.add_error("new_password_confirm",
                        "New confirm password can't be blank")
-    if request.POST["password"] and request.POST["password_confirmation"]:
-        if request.POST["password"] != request.POST["password_confirmation"]:
+    if request.POST["new_password"] and request.POST["new_password_confirm"]:
+        if request.POST["new_password"] != request.POST["new_password_confirm"]:
             form.add_error(
                 None, "News password and new password confirmation is not match.")
 
@@ -723,7 +727,7 @@ def password_change(request):
     reset_form = PasswordResetForm()
     if request.method == "POST":
         reset_form = PasswordResetForm(request.POST)
-        validate_password_change_form(request, form)
+        validate_password_change_form(request, reset_form)
         if reset_form.is_valid():
             password = reset_form.cleaned_data.get("password")
             new_password = reset_form.cleaned_data.get("new_password")
