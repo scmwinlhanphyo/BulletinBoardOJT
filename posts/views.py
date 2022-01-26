@@ -65,10 +65,13 @@ def userList(request):
     """
     form = SearchUserForm()
     user = get_object_or_404(User, pk=request.user.id)
+    print('---user list--%s' %request.user.id)
     query = Q()
     if user.type == "1":
         query.add(Q(created_user_id__exact=user.id), Q.AND)
     if (request.POST):
+        print('--search user_list--------------------')
+        # print(request)
         name = request.POST["name"]
         email = request.POST["email"]
         from_date = request.POST["from_date"]
