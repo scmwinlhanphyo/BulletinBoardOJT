@@ -3,13 +3,17 @@ from posts.forms import PostForm, SeachPostForm, SignUpForm, UserEditForm, UserF
 
 
 class SeachPostFormTest(TestCase):
+    """Search Post Form Test Code"""
     def test_post_search_form(self):
+        """test post search form label"""
         form = SeachPostForm()
         self.assertEqual(form.fields["keyword"].label, "keyword:")
 
 
 class SearchUserFormTest(TestCase):
+    """Search User Form Test Code"""
     def test_user_serarch_form(self):
+        """test user search form label"""
         form = SearchUserForm()
         self.assertEqual(form.fields["name"].label, "Name :")
         self.assertEqual(form.fields["email"].label, "Email :")
@@ -18,26 +22,33 @@ class SearchUserFormTest(TestCase):
 
 
 class PostFormTest(TestCase):
+    """Post Form Test Code"""
     def test_post_form_label(self):
+        """test post search form label"""
         form = PostForm()
         self.assertTrue(form.fields["title"].label == "Title *")
         self.assertTrue(form.fields["description"].label == "Description *")
 
     def test_post_form_invalid(self):
+        """test post form invalid"""
         form = PostForm(data={"title": "", "description": ""})
         self.assertFalse(form.is_valid())
 
     def test_post_form_description(self):
+        """test post form invalid description"""
         form = PostForm(data={"title": "test", "description": "This is test description. This is test description. This is test description. This is test description. This is test description. This is test description. This is test description. This is test description. This is test description. This is test description. This is test description. This is test description. This is test description. This is test description. This is test description. This is test description. This is test description. This is test description. This is test description. This is test description."})
         self.assertFalse(form.is_valid())
 
     def test_post_form_valid(self):
+        """test post form valid"""
         form = PostForm(data={"title": "test", "description": "test"})
         self.assertTrue(form.is_valid())
 
 
 class UserFormTest(TestCase):
+    """User Form Test Code"""
     def test_user_form_label(self):
+        """test user form label"""
         form = UserForm()
         self.assertTrue(form.fields["name"].label == "Name *")
         self.assertTrue(form.fields["email"].label == "E-Mail Address *")
@@ -51,6 +62,7 @@ class UserFormTest(TestCase):
         self.assertTrue(form.fields["profile"].label == "Profile *")
 
     def test_user_form_invalid(self):
+        """test user form invalid"""
         form = UserForm(data={
             "name": "",
             "email": "",
@@ -63,6 +75,7 @@ class UserFormTest(TestCase):
         self.assertFalse(form.is_valid())
 
     def test_user_form_invalid_email(self):
+        """test user form invalid email"""
         form = UserForm(data={
             "name": "test",
             "email": "false mail",
@@ -75,6 +88,7 @@ class UserFormTest(TestCase):
         self.assertFalse(form.is_valid())
 
     def test_user_form_valid_email(self):
+        """test user form valid email"""
         form = UserForm(data={
             "name": "test",
             "email": "mail@test.com",
@@ -87,6 +101,7 @@ class UserFormTest(TestCase):
         self.assertTrue(form.is_valid())
 
     def test_user_form_invalid_password(self):
+        """test user form invalid password"""
         form = UserForm(data={
             "name": "test",
             "email": "mail@test.com",
@@ -99,6 +114,7 @@ class UserFormTest(TestCase):
         self.assertFalse(form.is_valid())
 
     def test_user_form_valid_password(self):
+        """test user form valid password"""
         form = UserForm(data={
             "name": "test",
             "email": "mail@test.com",
@@ -111,6 +127,7 @@ class UserFormTest(TestCase):
         self.assertTrue(form.is_valid())
 
     def test_user_form_invalid_type(self):
+        """test user form invalid type"""
         form = UserForm(data={
             "name": "test",
             "email": "mail@test.com",
@@ -123,7 +140,9 @@ class UserFormTest(TestCase):
         self.assertFalse(form.is_valid())
 
 class UserEditFormTest(TestCase):
+    """User Edit Form Test Code"""
     def test_user_edit_form_label(self):
+        """test user edit form label"""
         form = UserEditForm()
         self.assertTrue(form.fields["name"].label == "Name *")
         self.assertTrue(form.fields["email"].label == "E-Mail Address *")
@@ -134,6 +153,7 @@ class UserEditFormTest(TestCase):
         self.assertTrue(form.fields["profile"].label == "Profile")
 
     def test_user_edit_form_invalid(self):
+        """test user edit form invalid"""
         form = UserEditForm(data={
             "name": "",
             "email": ""
@@ -141,6 +161,7 @@ class UserEditFormTest(TestCase):
         self.assertFalse(form.is_valid())
 
     def test_user_edit_form_invalid_email(self):
+        """test user edit form invalid email"""
         form = UserEditForm(data={
             "name": "test",
             "email": "false mail",
@@ -151,6 +172,7 @@ class UserEditFormTest(TestCase):
         self.assertFalse(form.is_valid())
 
     def test_user_edit_form_valid(self):
+        """test user edit form valid"""
         form = UserEditForm(data={
             "name": "test",
             "email": "mail@test.com",
@@ -161,6 +183,7 @@ class UserEditFormTest(TestCase):
         self.assertTrue(form.is_valid())
 
     def test_user_form_invalid_type(self):
+        """test user form invalid type"""
         form = UserForm(data={
             "name": "test",
             "email": "mail@test.com",
@@ -172,7 +195,9 @@ class UserEditFormTest(TestCase):
 
 
 class PasswordResetFormTest(TestCase):
+    """Password Reset Form Test Code"""
     def test_reset_form_label(self):
+        """test Password Reset Form label"""
         form = PasswordResetForm()
         self.assertEqual(form.fields["password"].label, "Current Password *")
         self.assertEqual(form.fields["new_password"].label, "New Password *")
@@ -180,6 +205,7 @@ class PasswordResetFormTest(TestCase):
             form.fields["new_password_confirm"].label, "New Confirm Password *")
 
     def test_password_reset_form_invalid(self):
+        """test password rest form invalid"""
         form = PasswordResetForm(data={
             "password": "",
             "new_password": "",
@@ -188,6 +214,7 @@ class PasswordResetFormTest(TestCase):
         self.assertFalse(form.is_valid())
 
     def test_password_reset_form_password_invalid(self):
+        """test password reset form password invalid"""
         form = PasswordResetForm(data={
             "password": "qwer1234",
             "new_password": "qwer4321",
@@ -196,6 +223,7 @@ class PasswordResetFormTest(TestCase):
         self.assertFalse(form.is_valid())
 
     def test_password_reset_form_password_valid(self):
+        """test password reset form password valid"""
         form = PasswordResetForm(data={
             "password": "qwer1234",
             "new_password": "qwer4321",
@@ -205,7 +233,9 @@ class PasswordResetFormTest(TestCase):
 
 
 class SignUpFormTest(TestCase):
+    """Sign Up Form Test Code"""
     def test_sign_up_form_label(self):
+        """test signup form label"""
         form = SignUpForm()
         self.assertEqual(form.fields["name"].label, "Name *")
         self.assertEqual(form.fields["email"].label, "E-Mail Address *")
@@ -214,6 +244,7 @@ class SignUpFormTest(TestCase):
             form.fields["password_confirmation"].label, "Password confirmation *")
 
     def test_password_reset_form_password_invalid(self):
+        """test password reset form password invalid"""
         form = SignUpForm(data={
             "name": "tester",
             "email": "tester@gmail.com",
@@ -223,15 +254,17 @@ class SignUpFormTest(TestCase):
         self.assertFalse(form.is_valid())
 
     def test_password_reset_form_password_valid(self):
+        """test password reset form password valid"""
         form = SignUpForm(data={
             "name": "tester",
-            "email": "tester@gmail.com",
+            "email": "tester1@gmail.com",
             "password": "12345",
             "password_confirmation": "12345"
         })
         self.assertTrue(form.is_valid())
     
     def test_password_reset_form_password_valid(self):
+        """test password reset form password valid"""
         form = SignUpForm(data={
             "name": "",
         })
@@ -239,17 +272,21 @@ class SignUpFormTest(TestCase):
 
 
 class CSVFormTest(TestCase):
+    """CSV Form Test Code"""
     def test_csv_form_label(self):
+        """test csv form label"""
         form = CSVForm()
         self.assertEqual(form.fields["csv_file"].label, "CSV file *")
 
     def test_file_invalid(self):
+        """test file invalid"""
         form = CSVForm(data={
             "csv_file": ""
         })
         self.assertFalse(form.is_valid())
     
     def test_file_valid(self):
+        """test file valid"""
         form = CSVForm(data={
             "csv_file": "test/path"
         })

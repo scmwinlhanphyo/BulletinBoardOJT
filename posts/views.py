@@ -44,7 +44,7 @@ def index(request):
 
     query.add(Q(deleted_user_id=None), Q.AND)
     query.add(Q(deleted_at=None), Q.AND)
-    post_list = Post.objects.filter(query)
+    post_list = Post.objects.filter(query).order_by('id')
     paginator = Paginator(post_list, 5)
     page_number = request.GET.get("page")
     page_obj = paginator.get_page(page_number)
@@ -65,13 +65,10 @@ def userList(request):
     """
     form = SearchUserForm()
     user = get_object_or_404(User, pk=request.user.id)
-    print('---user list--%s' %request.user.id)
     query = Q()
     if user.type == "1":
         query.add(Q(created_user_id__exact=user.id), Q.AND)
     if (request.POST):
-        print('--search user_list--------------------')
-        # print(request)
         name = request.POST["name"]
         email = request.POST["email"]
         from_date = request.POST["from_date"]
@@ -95,7 +92,7 @@ def userList(request):
     query.add(Q(deleted_user_id=None), Q.AND)
     query.add(Q(deleted_at=None), Q.AND)
 
-    user_list = User.objects.filter(query)
+    user_list = User.objects.filter(query).order_by('id')
 
     for user_data in user_list:
         user_data.type = "Admin" if user_data.type == "0" else "User"
@@ -290,8 +287,6 @@ def user_detail(request):
     if obj.profile and hasattr(obj.profile, "url"):
         profile_url = obj.profile.url
         profile_url = "media/" + profile_url.split("/")[-1]
-    else:
-        profile_url = "media/user-default.png"
     created_user = User.objects.get(
         pk=obj.created_user_id) if obj.created_user_id != None else None
     updated_user = User.objects.get(
@@ -401,8 +396,6 @@ def user_update(request, pk):
     if req_user.profile and hasattr(req_user.profile, "url"):
         profile = req_user.profile.url
         profile = "/media/" + profile.split("/")[-1]
-    else:
-        profile = "/media/user-default.png"
     check_route("user", request.META.get("HTTP_REFERER"), request)
     formData = {
         "name": req_user.name,
@@ -494,8 +487,6 @@ def user_profile(request):
     if current_user.profile and hasattr(current_user.profile, "url"):
         profile_url = current_user.profile.url
         profile_url = "/media/" + profile_url.split("/")[-1]
-    else:
-        profile_url = "/media/user-default.png"
     context = {
         "id": current_user.id,
         "name": current_user.name,
@@ -587,7 +578,7 @@ def csv_import(request):
             else:
                 message = "Please choose a file"
         except Exception as e:
-            message = str(e)
+            message = "Please choose csv format"
     context = {
         "title": "Upload CSV File",
         "form": form,

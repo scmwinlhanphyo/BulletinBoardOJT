@@ -59,7 +59,7 @@ class User(AbstractBaseUser):
         unique=True
     )
     password = models.CharField(max_length=255)
-    profile = models.FileField(upload_to="", null=True, verbose_name="", default='/user-default.png')
+    profile = models.FileField(upload_to="", null=True, verbose_name="", default='/user_default.png')
     USER_TYPE = (
         ("0", "Admin"),
         ("1", "User")

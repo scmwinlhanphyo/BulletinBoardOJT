@@ -14,7 +14,7 @@ function goToDetail(user) {
         lastFileName = data.profile.split('/');
         filename = lastFileName[lastFileName.length - 1];
       } else {
-        filename = 'user-default.png';
+        filename = 'user_default.png';
       }
       filename ? $("#user-detail-profile").attr("src", '/media/' + filename) : '';
       data?.fields?.name ? $("#user-detail-name").html(data.fields.name) : '';

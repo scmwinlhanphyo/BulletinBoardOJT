@@ -51,9 +51,10 @@ password = root
 
 [/post/](http://localhost:8000/posts/)
 
-## Run Django Test Code
+### Run Django Test Code
 python manage.py test posts.tests
 
+# Run Test Code with coverage
 coverage run --source='.' manage.py test
 coverage report -m
 py manage.py test --pattern="test_views.py"
