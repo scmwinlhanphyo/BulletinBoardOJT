@@ -14,7 +14,8 @@ class LoginViewTest(TestCase):
             email="logintester@gmail.com", password="12345")
         test_user.type = "1"
         test_user.save()
-        self.user = User.objects.create(name="tester_login", email="tester_login@gmail.com")
+        self.user = User.objects.create(
+            name="tester_login", email="tester_login@gmail.com")
         self.user.set_password("12345")
         self.user.save()
 
@@ -61,8 +62,9 @@ class LoginViewTest(TestCase):
     def test_login_existed_username(self):
         """test for login user name existed"""
         response = self.client.post(reverse("user_login"), {
-                                    "email": "tester_login@gmail.com", "password": "12345" })
+                                    "email": "tester_login@gmail.com", "password": "12345"})
         self.assertEqual(response.status_code, 302)
+
 
 class PostListViewTest(TestCase):
     def setUp(self):
@@ -131,6 +133,7 @@ class PostListViewTest(TestCase):
         # assertion
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.context["page_obj"]), 1)
+
 
 class UserListViewTest(TestCase):
     def setUp(self):
@@ -652,7 +655,8 @@ class UserProfileTest(TestCase):
             reverse("user-profile"))
         # assertion
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.context["email"], "postdeletetester@gmail.com")
+        self.assertEqual(
+            response.context["email"], "postdeletetester@gmail.com")
 
     def test_user_profile_without_image(self):
         """test user profile without image"""
@@ -781,7 +785,8 @@ class CsvDownloadTest(TestCase):
 
     def test_csv_download(self):
         """test csv download"""
-        self.client.login(email="csvdownloadtester@gmail.com", password="12345")
+        self.client.login(
+            email="csvdownloadtester@gmail.com", password="12345")
         response = self.client.get(
             reverse("post-list-download"))
         self.assertEqual(response.status_code, 200)
@@ -808,7 +813,8 @@ class UserPasswordResetTest(TestCase):
     def test_password_reset_with_wrong_password(self):
         """test password reset with wrong password"""
         # prepare
-        self.client.login(email="passwordresettester@gmail.com", password="12345")
+        self.client.login(
+            email="passwordresettester@gmail.com", password="12345")
         # execute
         response = self.client.post(reverse(
             "password_change"), {"password": "wrong111", "new_password": "12345", "new_password_confirm": "12345"})
@@ -818,7 +824,8 @@ class UserPasswordResetTest(TestCase):
     def test_password_reset(self):
         """test password reset"""
         # prepare
-        self.client.login(email="passwordresettester@gmail.com", password="12345")
+        self.client.login(
+            email="passwordresettester@gmail.com", password="12345")
         # execute
         response = self.client.post(reverse(
             "password_change"), {"password": "12345", "new_password": "12345", "new_password_confirm": "12345"})
@@ -930,21 +937,26 @@ class UserEditViewTest(TestCase):
         test_user = User.objects.create_user(
             email="useredittester@gmail.com", password="12345")
         test_user.type = "1"
-        test_user.profile = "media/user_default.png"
+        # test_user.profile = "media/user_default.png"
         test_user.save()
         self.user = test_user
 
     def test_user_update_without_login(self):
         """test user update without login"""
+        # prepare
         response = self.client.get(
             reverse("user-update", kwargs={'pk': self.user.id}))
+        # assertion
         self.assertEqual(response.status_code, 302)
 
     def test_user_update_initial(self):
         """test user update initial data"""
+        # prepare
         self.client.login(email="useredittester@gmail.com", password="12345")
+        # execute
         response = self.client.get(
             reverse('user-update', kwargs={'pk': self.user.id}))
+        # assertion
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(
             response, "posts/user_update.html"
@@ -952,7 +964,9 @@ class UserEditViewTest(TestCase):
 
     def test_user_update_form_confirm(self):
         """test user update from confirm page"""
+        # prepare
         self.client.login(email="useredittester@gmail.com", password="12345")
+        # execute
         response = self.client.post(
             reverse('user-update', kwargs={'pk': self.user.id}),
             {
@@ -966,6 +980,7 @@ class UserEditViewTest(TestCase):
                 "address": "Yangon"
             }
         )
+        # assertion
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(
             response, "posts/user_update.html"
@@ -973,8 +988,10 @@ class UserEditViewTest(TestCase):
 
     def test_user_update_form_confirm_withfile(self):
         """test user update form with file"""
+        # prepare
         self.client.login(email="useredittester@gmail.com", password="12345")
         with open(str(settings.BASE_DIR)+"\\media\\test\\user_default.png", "rb") as profile:
+            # execute
             response = self.client.post(
                 reverse('user-update', kwargs={'pk': self.user.id}),
                 {
@@ -989,6 +1006,7 @@ class UserEditViewTest(TestCase):
                     "address": "Yangon",
                 }
             )
+            # assertion
             self.assertEqual(response.status_code, 200)
             self.assertTemplateUsed(
                 response, "posts/user_update.html"
@@ -996,12 +1014,14 @@ class UserEditViewTest(TestCase):
 
     def test_user_edit_form_cancel(self):
         """test user edit form form cancel"""
+        # prepare
         self.client.login(email="useredittester@gmail.com", password="12345")
         session = self.client.session
         session["create_update_confirm_page_flag"] = True
         session.save()
         self.client.get(reverse('user-update', kwargs={'pk': self.user.id}))
         with open(str(settings.BASE_DIR)+"\\media\\test\\user_default.png", "rb") as profile:
+            # execute
             res_cancel = self.client.post(
                 reverse('user-update', kwargs={'pk': self.user.id}),
                 {
@@ -1016,17 +1036,20 @@ class UserEditViewTest(TestCase):
                     "address": "Yangon"
                 }
             )
+            # assertion
             self.assertEqual(res_cancel.status_code, 302)
             self.assertEqual(res_cancel.url, reverse(
                 'user-update', kwargs={'pk': self.user.id}))
 
     def test_user_edit_form_withfile(self):
         """test user edit with image"""
+        # prepare
         self.client.login(email="useredittester@gmail.com", password="12345")
         session = self.client.session
         session["create_update_confirm_page_flag"] = False
         session.save()
         with open(str(settings.BASE_DIR)+"\\media\\test\\user_default.png", "rb") as profile:
+            # execute
             res = self.client.post(
                 reverse('user-update', kwargs={'pk': self.user.id}),
                 {
@@ -1039,10 +1062,14 @@ class UserEditViewTest(TestCase):
                     "address": "Yangon"
                 }
             )
+            # assertion
+            self.assertEqual(res.status_code, 302)
 
+            # prepare
             session["create_update_confirm_page_flag"] = True
             session["profile"] = "user_default.png"
             session.save()
+            # execute
             res = self.client.post(
                 reverse('user-update', kwargs={'pk': self.user.id}),
                 {
@@ -1054,15 +1081,42 @@ class UserEditViewTest(TestCase):
                     "address": "Yangon"
                 }
             )
+            # assertion
             self.assertEqual(res.status_code, 302)
+
+    def test_user_edit_form_error(self):
+        """test user edit form for exception"""
+        self.client.login(
+            email="useredittestermailwithfile@gmail.com", password="12345")
+        session = self.client.session
+        session["create_update_confirm_page_flag"] = True
+        session["profile"] = "aaaaa.png"
+        session.save()
+        res = self.client.post(
+            reverse('user-update', kwargs={'pk': self.user.id}),
+            {
+                "_save": True,
+                "name": "test name",
+                "email": "useredittestermailwithfile@gmail.com",
+                "type": "0",
+                "phone": "09123456",
+                "address": "Yangon"
+            }
+        )
+        print('res')
+        print(res)
+        self.assertEqual(res.status_code, 302)
 
     def test_user_edit_form_nofile(self):
         """test user edit without file."""
-        self.client.login(email="useredittestermailwithfile@gmail.com", password="12345")
+        # prepare
+        self.client.login(
+            email="useredittestermailwithfile@gmail.com", password="12345")
         session = self.client.session
         session["create_update_confirm_page_flag"] = True
         session["profile"] = ""
         session.save()
+        # execute
         response = self.client.post(
             reverse('user-update', kwargs={'pk': self.user.id}),
             {
@@ -1074,4 +1128,5 @@ class UserEditViewTest(TestCase):
                 "address": "Yangon"
             }
         )
+        # assertion
         self.assertEqual(response.status_code, 302)
