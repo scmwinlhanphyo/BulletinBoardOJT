@@ -1086,12 +1086,14 @@ class UserEditViewTest(TestCase):
 
     def test_user_edit_form_error(self):
         """test user edit form for exception"""
+        # prepare
         self.client.login(
             email="useredittester@gmail.com", password="12345")
         session = self.client.session
         session["create_update_confirm_page_flag"] = True
         session["profile"] = "aaaaa.png"
         session.save()
+        # execute
         res = self.client.post(
             reverse('user-update', kwargs={'pk': self.user.id}),
             {
@@ -1104,6 +1106,7 @@ class UserEditViewTest(TestCase):
                 "profile": "afsadfasdfsaf"
             }
         )
+        # assertion
         self.assertEqual(res.status_code, 200)
 
     def test_user_edit_form_nofile(self):
