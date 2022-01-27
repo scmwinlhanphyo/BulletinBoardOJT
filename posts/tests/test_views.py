@@ -1063,7 +1063,7 @@ class UserEditViewTest(TestCase):
                 }
             )
             # assertion
-            self.assertEqual(res.status_code, 302)
+            self.assertEqual(res.status_code, 200)
 
             # prepare
             session["create_update_confirm_page_flag"] = True
@@ -1087,7 +1087,7 @@ class UserEditViewTest(TestCase):
     def test_user_edit_form_error(self):
         """test user edit form for exception"""
         self.client.login(
-            email="useredittestermailwithfile@gmail.com", password="12345")
+            email="useredittester@gmail.com", password="12345")
         session = self.client.session
         session["create_update_confirm_page_flag"] = True
         session["profile"] = "aaaaa.png"
@@ -1097,15 +1097,14 @@ class UserEditViewTest(TestCase):
             {
                 "_save": True,
                 "name": "test name",
-                "email": "useredittestermailwithfile@gmail.com",
+                "email": "useredittestermailwithinvalidfile@gmail.com",
                 "type": "0",
                 "phone": "09123456",
-                "address": "Yangon"
+                "address": "Yangon",
+                "profile": "afsadfasdfsaf"
             }
         )
-        print('res')
-        print(res)
-        self.assertEqual(res.status_code, 302)
+        self.assertEqual(res.status_code, 200)
 
     def test_user_edit_form_nofile(self):
         """test user edit without file."""
