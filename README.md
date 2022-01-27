@@ -54,9 +54,13 @@ password = root
 ### Run Django Test Code
 python manage.py test posts.tests
 
+# Run Test Code only one file
+py manage.py test --pattern="test_views.py"
+
 # Run Test Code with coverage
 coverage run --source='.' manage.py test
 coverage report -m
-py manage.py test --pattern="test_views.py"
 
+# Run Test Code only one file with coverage
 coverage run --source='.' manage.py test --pattern="test_views.py"
+coverage report -m

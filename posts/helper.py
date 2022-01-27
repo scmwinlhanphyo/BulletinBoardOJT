@@ -7,14 +7,13 @@ def check_route(current_route, previousRoute, request):
     Param current_route
     """
     if previousRoute is not None:
-        print('helper')
-        print(previousRoute)
         splittedRoute = previousRoute.split("/")
         if (splittedRoute[-2] == "create"):
             if (splittedRoute[-3] != current_route):
                 request.session["create_update_confirm_page_flag"] = False
         elif (splittedRoute[-2] == "update"):
             if (splittedRoute[-4] != current_route):
+                print('session false')
                 request.session["create_update_confirm_page_flag"] = False
 
 def save_temp(f):
