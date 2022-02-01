@@ -539,6 +539,7 @@ class PostUpdateViewTest(TestCase):
         )
         # assertion
         self.assertEqual(response.status_code, 302)
+        self.assertEqual(Post.objects.count(), 1)
         self.assertEqual(response.url, reverse("index"))
 
     def test_post_update_form_cancel(self):
@@ -634,7 +635,6 @@ class PostDeleteConfirmTest(TestCase):
         # assertion
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.url, reverse("index"))
-
 
 class UserProfileTest(TestCase):
     def setUp(self):
@@ -1100,6 +1100,7 @@ class UserEditViewTest(TestCase):
         )
         # assertion
         self.assertEqual(response.status_code, 200)
+        self.assertEqual(User.objects.count(), 1)
 
     def test_user_edit_form_withfile(self):
         """test user edit with image"""
@@ -1143,4 +1144,5 @@ class UserEditViewTest(TestCase):
             )
             # assertion
             self.assertEqual(res.status_code, 302)
+            self.assertEqual(User.objects.count(), 1)
             self.assertRedirects(res, reverse("user-list"))
